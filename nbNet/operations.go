@@ -26,7 +26,7 @@ func SetRouter() {
 	router.PATCH("/noticeBoard/:notice_id", CloseNotice)
 	router.PUT("/noticeBoard", UpdateNotice)
 
-	router.Run("localhost:8080")
+	router.Run(":8080")
 }
 
 func GetNotices(c *gin.Context) {
