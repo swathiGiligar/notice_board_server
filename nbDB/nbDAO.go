@@ -3,6 +3,7 @@ package nbDB
 import (
 	"database/sql"
 	"fmt"
+	"time"
 
 	_ "github.com/lib/pq"
 )
@@ -16,7 +17,7 @@ const (
 
 	FetchNoticesStmt = `SELECT "notice_id", "heading", "price", "category",
 	"area_level_1", "area_level_2", "contact", "details"
-	 FROM "notices" WHERE status=$1 `
+	 FROM "notices" WHERE status=$1 order by updated_on desc`
 
 	insertNewNoticeStmnt = `insert into "notices"("heading", "price",
 	 "category", "area_level_1", "area_level_2", "contact", "details", 
@@ -27,7 +28,7 @@ const (
 
 	updateNoticeStmt = `update "notices" set "heading"=$1, "price"=$2,
 	"category"=$3, "area_level_1"=$4, "area_level_2"=$5, "contact"=$6, 
-	"details"=$7 where "notice_id"=$8`
+	"details"=$7, "updated_on"=$8  where "notice_id"=$9`
 )
 
 type DbNotice struct {
@@ -39,6 +40,8 @@ type DbNotice struct {
 	DbAreaLavel2 string
 	DbContact    string
 	DbDetails    string
+	DbCreatedOn  time.Time
+	DbUpdatedOn  time.Time
 }
 
 func UpdateNotice(updatedNotice DbNotice) {
@@ -50,7 +53,7 @@ func UpdateNotice(updatedNotice DbNotice) {
 	result, e := db.Exec(updateNoticeStmt, updatedNotice.DbHeading,
 		updatedNotice.DbPrice, updatedNotice.DbCategory,
 		updatedNotice.DbAreaLevel1, updatedNotice.DbAreaLavel2,
-		updatedNotice.DbContact, updatedNotice.DbDetails,
+		updatedNotice.DbContact, updatedNotice.DbDetails, time.Now(),
 		updatedNotice.DbNoticeId)
 	CheckError(e)
 	rowsAffected, _ := result.RowsAffected()
