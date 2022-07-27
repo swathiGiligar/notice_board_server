@@ -16,15 +16,15 @@ const (
 	dbname   = "notice_board"
 
 	FetchNoticesStmt = `SELECT "notice_id", "heading", "price", "category",
-	"area_level_1", "area_level_2", "contact", "details"
+	"area_level_1", "area_level_2", "contact", "details", "created_on" 
 	 FROM "notices" WHERE status=$1 order by updated_on desc`
 
 	insertNewNoticeStmnt = `insert into "notices"("heading", "price",
 	 "category", "area_level_1", "area_level_2", "contact", "details", 
 	 "status") values($1, $2, $3, $4, $5, $6, $7, $8)`
 
-	closeNoticeStmt = `update "notices" set "status"='CLOSED'  
-	where "notice_id"=$1`
+	closeNoticeStmt = `update "notices" set "status"='CLOSED', "updated_on"=$1  
+	where "notice_id"=$2`
 
 	updateNoticeStmt = `update "notices" set "heading"=$1, "price"=$2,
 	"category"=$3, "area_level_1"=$4, "area_level_2"=$5, "contact"=$6, 
@@ -84,7 +84,7 @@ func CloseNotice(noticeId int64) {
 	// close database
 	defer db.Close()
 
-	result, e := db.Exec(closeNoticeStmt, noticeId)
+	result, e := db.Exec(closeNoticeStmt, time.Now(), noticeId)
 	CheckError(e)
 	rowsAffected, _ := result.RowsAffected()
 	fmt.Printf("\nRows Affected = %d", rowsAffected)
@@ -112,14 +112,15 @@ func FetchNotices(status string) []DbNotice {
 		var area_level_2 string
 		var contact string
 		var details string
+		var created_on time.Time
 
 		err = rows.Scan(&noticeId, &heading, &price, &category, &area_level_1,
-			&area_level_2, &contact, &details)
+			&area_level_2, &contact, &details, &created_on)
 		CheckError(err)
 		currentNotice := DbNotice{DbNoticeId: noticeId, DbHeading: heading,
 			DbPrice:    price,
 			DbCategory: category, DbAreaLevel1: area_level_1,
-			DbAreaLavel2: area_level_2, DbContact: contact, DbDetails: details}
+			DbAreaLavel2: area_level_2, DbContact: contact, DbDetails: details, DbCreatedOn: created_on}
 		notices = append(notices, currentNotice)
 
 		fmt.Println(noticeId, heading, price, category, area_level_1,

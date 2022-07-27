@@ -3,20 +3,22 @@ package nbNet
 import (
 	"net/http"
 	"strconv"
+	"time"
 
 	"github.com/gin-gonic/gin"
 	"github.com/swathiGiligar/nbServer/nbDB"
 )
 
 type notice struct {
-	NoticeID   string `json:"notice_id"`
-	Heading    string `json:"heading"`
-	Price      string `json:"price"`
-	Category   string `json:"category"`
-	AreaLevel1 string `json:"area_level_1"`
-	AreaLavel2 string `json:"area_level_2"`
-	Contact    string `json:"contact"`
-	Details    string `json:"details"`
+	NoticeID   string    `json:"notice_id"`
+	Heading    string    `json:"heading"`
+	Price      string    `json:"price"`
+	Category   string    `json:"category"`
+	AreaLevel1 string    `json:"area_level_1"`
+	AreaLavel2 string    `json:"area_level_2"`
+	Contact    string    `json:"contact"`
+	Details    string    `json:"details"`
+	Created_On time.Time `json:"created_on"`
 }
 
 func SetRouter() {
@@ -39,7 +41,7 @@ func GetNotices(c *gin.Context) {
 			Heading: current.DbHeading, Price: current.DbPrice,
 			Category: current.DbCategory, AreaLevel1: current.DbAreaLevel1,
 			AreaLavel2: current.DbAreaLavel2, Contact: current.DbContact,
-			Details: current.DbDetails}
+			Details: current.DbDetails, Created_On: current.DbCreatedOn}
 		jsonNotices = append(jsonNotices, jsonNotice)
 	}
 
