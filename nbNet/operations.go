@@ -23,11 +23,16 @@ type notice struct {
 
 func SetRouter() {
 	router := gin.Default()
-	router.GET("/noticeBoard", GetNotices)
-	router.POST("/noticeBoard", AddNotices)
-	router.PATCH("/noticeBoard/:notice_id", CloseNotice)
-	router.PUT("/noticeBoard", UpdateNotice)
 
+	//Notice Management
+	router.GET("/noticeBoard", GetNotices).
+		POST("/noticeBoard", AddNotice).
+		PATCH("/noticeBoard/:notice_id", CloseNotice).
+		PUT("/noticeBoard", UpdateNotice)
+
+	//User Management
+	// router.GET("/user/:loginId", GetUser).
+	// 		POST("/user")
 	router.Run(":8080")
 }
 
@@ -48,7 +53,7 @@ func GetNotices(c *gin.Context) {
 	c.IndentedJSON(http.StatusOK, jsonNotices)
 }
 
-func AddNotices(c *gin.Context) {
+func AddNotice(c *gin.Context) {
 	var newNotice notice
 
 	// Call BindJSON to bind the received JSON to

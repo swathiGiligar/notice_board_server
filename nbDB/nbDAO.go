@@ -6,29 +6,7 @@ import (
 	"time"
 
 	_ "github.com/lib/pq"
-)
-
-const (
-	host     = "localhost"
-	port     = 5432
-	user     = "postgres"
-	password = "postgres"
-	dbname   = "notice_board"
-
-	FetchNoticesStmt = `SELECT "notice_id", "heading", "price", "category",
-	"area_level_1", "area_level_2", "contact", "details", "created_on" 
-	 FROM "notices" WHERE status=$1 order by updated_on desc`
-
-	insertNewNoticeStmnt = `insert into "notices"("heading", "price",
-	 "category", "area_level_1", "area_level_2", "contact", "details", 
-	 "status") values($1, $2, $3, $4, $5, $6, $7, $8)`
-
-	closeNoticeStmt = `update "notices" set "status"='CLOSED', "updated_on"=$1  
-	where "notice_id"=$2`
-
-	updateNoticeStmt = `update "notices" set "heading"=$1, "price"=$2,
-	"category"=$3, "area_level_1"=$4, "area_level_2"=$5, "contact"=$6, 
-	"details"=$7, "updated_on"=$8  where "notice_id"=$9`
+	"github.com/swathiGiligar/nbServer/resources"
 )
 
 type DbNotice struct {
@@ -50,7 +28,7 @@ func UpdateNotice(updatedNotice DbNotice) {
 	// close database
 	defer db.Close()
 
-	result, e := db.Exec(updateNoticeStmt, updatedNotice.DbHeading,
+	result, e := db.Exec(resources.UpdateNoticeStmt, updatedNotice.DbHeading,
 		updatedNotice.DbPrice, updatedNotice.DbCategory,
 		updatedNotice.DbAreaLevel1, updatedNotice.DbAreaLavel2,
 		updatedNotice.DbContact, updatedNotice.DbDetails, time.Now(),
@@ -66,7 +44,7 @@ func InsertNotice(newNotice DbNotice) {
 	// close database
 	defer db.Close()
 
-	result, e := db.Exec(insertNewNoticeStmnt, newNotice.DbHeading, newNotice.DbPrice,
+	result, e := db.Exec(resources.InsertNewNoticeStmnt, newNotice.DbHeading, newNotice.DbPrice,
 
 		newNotice.DbCategory, newNotice.DbAreaLevel1, newNotice.DbAreaLavel2,
 		newNotice.DbContact, newNotice.DbDetails, "ACTIVE")
@@ -84,7 +62,7 @@ func CloseNotice(noticeId int64) {
 	// close database
 	defer db.Close()
 
-	result, e := db.Exec(closeNoticeStmt, time.Now(), noticeId)
+	result, e := db.Exec(resources.CloseNoticeStmt, time.Now(), noticeId)
 	CheckError(e)
 	rowsAffected, _ := result.RowsAffected()
 	fmt.Printf("\nRows Affected = %d", rowsAffected)
@@ -98,7 +76,7 @@ func FetchNotices(status string) []DbNotice {
 	// close database
 	defer db.Close()
 
-	rows, err := db.Query(FetchNoticesStmt, "ACTIVE")
+	rows, err := db.Query(resources.FetchNoticesStmt, "ACTIVE")
 	CheckError(err)
 
 	defer rows.Close()
@@ -134,8 +112,10 @@ func FetchNotices(status string) []DbNotice {
 
 func connectToDB() *sql.DB {
 	psqlconn :=
-		fmt.Sprintf("host=%s port=%d user=%s password=%s dbname=%s sslmode=disable",
-			host, port, user, password, dbname)
+		fmt.Sprintf(
+			"host=%s port=%d user=%s password=%s dbname=%s sslmode=disable",
+			resources.Host, resources.Port, resources.User, resources.Password,
+			resources.Dbname)
 
 	db, err := sql.Open("postgres", psqlconn)
 	CheckError(err)
